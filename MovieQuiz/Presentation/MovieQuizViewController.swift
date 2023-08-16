@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private var buttons: [UIButton]!
     
     // MARK: - Private Properties
     
@@ -92,6 +93,7 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
         imageView.layer.borderWidth = 0
+        enableButtons()
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -106,6 +108,7 @@ final class MovieQuizViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
         }
+        disableButtons()
     }
     
     private func showNextQuestionOrResults() {
@@ -141,6 +144,14 @@ final class MovieQuizViewController: UIViewController {
         
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func disableButtons() {
+        buttons.forEach { $0.isEnabled = false }
+    }
+    
+    private func enableButtons() {
+        buttons.forEach { $0.isEnabled = true }
     }
     
 }
