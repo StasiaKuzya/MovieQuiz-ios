@@ -87,9 +87,3 @@ final class StatisticServiceImplementation: StatisticService {
         case correct, total, bestGame, gamesCount
     }
 }
-
-
-
-
-
-

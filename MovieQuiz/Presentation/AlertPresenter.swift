@@ -21,9 +21,3 @@ class AlertPresenter {
         delegate.present(alert, animated: true, completion: nil)
     }
 }
-
-
-
-
-
-

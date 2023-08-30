@@ -43,24 +43,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    // MARK: - IBAction
-    
-    @IBAction private func yesButtonClick(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
-    @IBAction private func noButtonClick(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
     // MARK: - Private Methods
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -99,7 +81,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if currentQuestionIndex == questionsAmount - 1 {
             
             statisticService.store(correct: correctAnswers, total: 10)
- //           statisticService.resetStatistics()
             
             let gamesCount = statisticService.gamesCount
             let bestGame = statisticService.bestGame
@@ -112,13 +93,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             Средняя точность: \(String(format: "%.2f", totalAccuracy * 100))%
             """
             
-            let result = AlertModel(title: "Этот раунд окончен!",
-                                    text: resultText,
-                                    buttonText: "Сыграть ещё раз",
-                                    completion: {
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-                self.questionFactory?.requestNextQuestion()})
+            let result = AlertModel(
+                            title: "Этот раунд окончен!",
+                            text: resultText,
+                            buttonText: "Сыграть ещё раз",
+                            completion: {
+                                self.currentQuestionIndex = 0
+                                self.correctAnswers = 0
+                                self.questionFactory?.requestNextQuestion()})
             
             AlertPresenter.showAlert(alertModel: result, delegate: self)
             
@@ -135,6 +117,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func enableButtons() {
         buttons.forEach { $0.isEnabled = true }
+    }
+    
+    // MARK: - IBAction
+    
+    @IBAction private func yesButtonClick(_ sender: UIButton) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = true
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
+    @IBAction private func noButtonClick(_ sender: UIButton) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = false
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
 
