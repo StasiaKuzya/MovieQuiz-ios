@@ -8,6 +8,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private var buttons: [UIButton]!
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
     
@@ -23,9 +24,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactory(delegate: self)
+        imageView.backgroundColor = .ypBackground
+        activityIndicator.color = .ypWhite
         
-        questionFactory?.requestNextQuestion()
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        questionFactory?.loadData()
 
     }
     
@@ -43,11 +49,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+    func didLoadDataFromServer() {
+        activityIndicator.stopAnimating()
+        questionFactory?.requestNextQuestion()
+        
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
     // MARK: - Private Methods
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
         return questionStep
@@ -118,7 +133,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func enableButtons() {
         buttons.forEach { $0.isEnabled = true }
     }
-    
+        
+    private func showNetworkError(message: String) {
+        
+        let errorAlert = AlertModel(title: "Ошибка",
+                                    text: message,
+                                    buttonText: "Попробовать ещё раз",
+                                    completion: {
+                                        self.currentQuestionIndex = 0
+                                        self.correctAnswers = 0
+                                        self.questionFactory?.requestNextQuestion()})
+        
+        AlertPresenter.showAlert(alertModel: errorAlert, delegate: self)
+        
+    }
     // MARK: - IBAction
     
     @IBAction private func yesButtonClick(_ sender: UIButton) {
