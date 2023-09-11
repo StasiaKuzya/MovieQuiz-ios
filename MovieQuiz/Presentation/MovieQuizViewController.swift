@@ -29,7 +29,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
 
-        showLoadingIndicator()
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
         questionFactory?.loadData()
 
     }
@@ -49,7 +50,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     func didLoadDataFromServer() {
-        hideLoadingIndicator()
+        activityIndicator.stopAnimating()
         questionFactory?.requestNextQuestion()
         
     }
@@ -132,18 +133,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func enableButtons() {
         buttons.forEach { $0.isEnabled = true }
     }
-    
-    private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-    }
-    
-    private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
-    }
-    
+        
     private func showNetworkError(message: String) {
-        hideLoadingIndicator()
         
         let errorAlert = AlertModel(title: "Ошибка",
                                     text: message,

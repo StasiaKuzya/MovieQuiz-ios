@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class QuestionFactory: QuestionFactoryProtocol {
 //    private let questions: [QuizQuestion] = [
@@ -71,8 +72,24 @@ class QuestionFactory: QuestionFactoryProtocol {
            
            do {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
-            } catch {
+            }
+//            catch {
+//                print("Failed to load image")
+//            }
+            catch {
                 print("Failed to load image")
+                let alertModel = AlertModel(
+                    title: "Ошибка",
+                    text: "Не удалось загрузить изображение фильма. Пожалуйста, повторите попытку позже.",
+                    buttonText: "Попробовать ещё раз",
+                    completion: nil
+                )
+                guard let delegateViewController = self.delegate as? UIViewController else {
+                    return }
+                
+                AlertPresenter.showAlert(alertModel: alertModel, delegate: delegateViewController)
+                
+                return
             }
             
             let rating = Float(movie.rating) ?? 0
@@ -107,7 +124,5 @@ class QuestionFactory: QuestionFactoryProtocol {
             }
         }
     }
-//        let question = questions[safe: index]
-//        delegate?.didReceiveNextQuestion(question: question)
 }
 
