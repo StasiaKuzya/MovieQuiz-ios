@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     // MARK: - IBOutlet
     
@@ -8,11 +8,10 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private var buttons: [UIButton]!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
     
-    private var statisticService: StatisticService = StatisticServiceImplementation()
     private var presenter: MovieQuizPresenter!
     
     // MARK: - Lifecycle
@@ -29,27 +28,12 @@ final class MovieQuizViewController: UIViewController {
         
         presenter.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: presenter)
 
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.startAnimating()
+        showLoadingIndicator()
         presenter.questionFactory?.loadData()
 
     }
     
-    // MARK: - QuestionFactoryDelegate
-    
-//    func didReceiveNextQuestion(question: QuizQuestion?) {
-//        presenter.didReceiveNextQuestion(question: question)
-//    }
-//    
-//    func didLoadDataFromServer() {
-//        activityIndicator.stopAnimating()
-//        questionFactory?.requestNextQuestion()
-//    }
-//
-//    func didFailToLoadData(with error: Error) {
-//        showNetworkError(message: error.localizedDescription)
-//    }
-    // MARK: - Private Methods
+    // MARK: - Methods
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
@@ -59,29 +43,24 @@ final class MovieQuizViewController: UIViewController {
         enableButtons()
     }
     
-    func showAnswerResult(isCorrect: Bool) {
-        // метод красит рамку
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        if isCorrect == true {
-            imageView.layer.borderColor = UIColor.ypGreen.cgColor
-            presenter.correctAnswers += 1
-        } else {imageView.layer.borderColor = UIColor.ypRed.cgColor}
+    func show(quiz result: QuizResultsViewModel) {
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
+        let resultText = presenter.makeResultMessage()
 
-            self.presenter.showNextQuestionOrResults()
-        }
-        disableButtons()
-    }
-        
-    private func disableButtons() {
-        buttons.forEach { $0.isEnabled = false }
+        let result = AlertModel(
+                        title: "Этот раунд окончен!",
+                        text: resultText,
+                        buttonText: "Сыграть ещё раз",
+                        completion: {
+                            self.presenter.restartGame()})
+
+            AlertPresenter.showAlert(alertModel: result, delegate: self)
     }
     
-    private func enableButtons() {
-        buttons.forEach { $0.isEnabled = true }
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
         
     func showNetworkError(message: String) {
@@ -94,6 +73,23 @@ final class MovieQuizViewController: UIViewController {
         
         AlertPresenter.showAlert(alertModel: errorAlert, delegate: self)
         
+    }
+    
+    func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+
+    func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+    }
+    
+    func disableButtons() {
+        buttons.forEach { $0.isEnabled = false }
+    }
+    
+    func enableButtons() {
+        buttons.forEach { $0.isEnabled = true }
     }
     // MARK: - IBAction
     
