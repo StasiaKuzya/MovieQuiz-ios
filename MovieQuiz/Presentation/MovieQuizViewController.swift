@@ -33,7 +33,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
 
     }
     
-    // MARK: - Methods
+    // MARK: - Public Methods
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
@@ -91,6 +91,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     func enableButtons() {
         buttons.forEach { $0.isEnabled = true }
     }
+    
     // MARK: - IBAction
     
     @IBAction private func yesButtonClick(_ sender: UIButton) {

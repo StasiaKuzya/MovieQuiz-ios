@@ -26,36 +26,30 @@ protocol MovieQuizViewControllerProtocol: AnyObject {
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
+    // MARK: - Constants
+    
+    let questionsAmount: Int = 10
+    
+    // MARK: - Public Properties
+    
+    weak var viewController: MovieQuizViewControllerProtocol?
+    var currentQuestion: QuizQuestion?
+    var questionFactory: QuestionFactoryProtocol?
+    
     // MARK: - Private Properties
 
     private var currentQuestionIndex: Int = 0
     private var statisticService: StatisticService = StatisticServiceImplementation()
+    private var correctAnswers = 0
     
-    // MARK: - Properties
-    
-    weak var viewController: MovieQuizViewControllerProtocol?
-    let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestion?
-//    weak var viewController: MovieQuizViewController?
-    var correctAnswers = 0
-    var questionFactory: QuestionFactoryProtocol?
+    // MARK: - Initializers
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         self.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     }
     
-    // MARK: - Private Methods
-    
-    private func didAnswer(isYes: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = isYes
-        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
-    // MARK: - Methods
+    // MARK: - Public Methods
     
     func didLoadDataFromServer() {
         viewController?.hideLoadingIndicator()
@@ -109,9 +103,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
+        guard let question = question else { return }
         
         currentQuestion = question
         let viewModel = convert(model: question)
@@ -172,5 +164,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self.proceedToNextQuestionOrResults()
         }
         viewController?.disableButtons()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        let givenAnswer = isYes
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
