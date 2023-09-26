@@ -14,6 +14,8 @@ class AlertPresenter {
                                       message: alertModel.text,
                                       preferredStyle: .alert)
         
+        alert.view.accessibilityIdentifier = "Alert"
+        
         let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in
             alertModel.completion?()
         }
